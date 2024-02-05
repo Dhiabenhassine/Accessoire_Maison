@@ -6,6 +6,7 @@ const insert = async (req, res) => {
       req.body.product;
 
     const images = req.body.images;
+    const Valeur = req.body.reduction;
 
     if (
       ID_User &&
@@ -13,6 +14,7 @@ const insert = async (req, res) => {
       Price &&
       Description &&
       Stock_Qte &&
+      Valeur &&
       TypeProduct &&
       images.length > 0
     ) {
@@ -31,7 +33,16 @@ const insert = async (req, res) => {
         },
         type: sequelize.QueryTypes.INSERT,
       });
-
+      const queryReduction = `INSERT INTO Reduction (ID_Product,Valeur)
+VALUES (:ID_Product,:Valeur)
+`;
+      const resultReduction = await sequelize.query(queryReduction, {
+        replacements: {
+          ID_Product: resultQueryInsert[0],
+          Valeur: Valeur,
+        },
+        type: sequelize.QueryTypes.INSERT,
+      });
       if (resultQueryInsert && resultQueryInsert[1] === 1) {
         const ID_Product = resultQueryInsert[0];
 
