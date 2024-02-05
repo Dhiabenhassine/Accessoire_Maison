@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Auth = require("./Controller/Authentication");
 const Product = require("./Controller/ProductsController");
+const Commentaire = require("./Controller/CommentaireController");
 
 module.exports = () => {
   router.post("/Authentication/register", async (req, res) => {
@@ -56,6 +57,43 @@ module.exports = () => {
       return res.status(400).json({
         message: "The id is invalid or does not exist in our database.",
       });
+    }
+  });
+  router.post("/Commentaire/Insert", async (req, res) => {
+    try {
+      await Commentaire.insertCommentaire(req, res);
+    } catch (err) {
+      console.log("Erreur d'insertion de commentaire");
+      return res.status(400).json({
+        message: "The id is invalid or does not exist in our database.",
+      });
+    }
+  });
+  router.post("/Commentaire/getAllCommentsByProducts", async (req, res) => {
+    try {
+      await Commentaire.getAllCommentsByProducts(req, res);
+    } catch (err) {
+      return res.status(500).send();
+    }
+  });
+  router.post("/Commentaire/updateCommentById", async (req, res) => {
+    try {
+      await Commentaire.updateCommentById(req, res);
+    } catch (err) {
+      return res
+        .status(400)
+        .json({ message: "Impossible de mettre à jour le commentaire." });
+    }
+  });
+  router.post("/Commentaire/deleteCommentaire", async (req, res) => {
+    try {
+      await Commentaire.deleteCommentaire(req, res);
+    } catch (e) {
+      return res
+        .status(400)
+        .json({
+          message: "Le commentaire n'a pas été trouvé ou est déjà supprimé",
+        });
     }
   });
   return router;
