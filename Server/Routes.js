@@ -3,7 +3,8 @@ const router = express.Router();
 const Auth = require("./Controller/Authentication");
 const Product = require("./Controller/ProductsController");
 const Commentaire = require("./Controller/CommentaireController");
-
+const Panier = require("./Controller/PanierController");
+const sequelize = require("./DataBase");
 module.exports = () => {
   router.post("/Authentication/register", async (req, res) => {
     try {
@@ -89,10 +90,44 @@ module.exports = () => {
     try {
       await Commentaire.deleteCommentaire(req, res);
     } catch (e) {
-      return res
+      return res.status(400).json({
+        message: "Le commentaire n'a pas été trouvé ou est déjà supprimé",
+      });
+    }
+  });
+  router.post("/Panier/insertPanier", async (req, res) => {
+    try {
+      await Panier.insertPanier(req, res);
+    } catch (err) {
+      res.status(500).send("server error");
+    }
+  });
+  router.post("/Panier/selectPanierByID", async (req, res) => {
+    try {
+      await Panier.selectPanierByID(req, res);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: "le panier demandé n'existe pas" });
+    }
+  });
+  router.post("/Panier/updatePanierByID", async (req, res) => {
+    try {
+      await Panier.updatePanierByID(req, res);
+    } catch (err) {
+      res
+        .status(400)
+        .json({ message: "Erreur lors de la mise à jour du panier" });
+    }
+  });
+  router.post("/Panier/deletePanier", async (req, res) => {
+    try {
+      await Panier.deletePanier(req, res);
+    } catch (err) {
+      res
         .status(400)
         .json({
-          message: "Le commentaire n'a pas été trouvé ou est déjà supprimé",
+          message:
+            "Le panier que vous essayez de supprimer ne peut être supprimé car il contient des produits.",
         });
     }
   });
