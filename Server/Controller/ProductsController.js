@@ -99,34 +99,44 @@ const selectProduct = async (req, res) => {
 };
 const selectProductByID = async (req, res) => {
   try {
-    const { ID_Product } = req.body;
+    const { ID_Product } = req.body; // Assuming ID_Product is a parameter in the request URL
 
-    if (ID_Product) {
-      const [Product] = await sequelize.query(
-        `SELECT  * FROM Products WHERE ID_Product='${ID_Product}' AND Status = 'Visible'`
-      );
-
-      const [images] = await sequelize.query(
-        `SELECT * FROM images WHERE ID_Product='${ID_Product}'`,
-        { replacements: { id: ID_Product } }
-      );
-
-      if (Product.length > 0 && images.length > 0) {
-        return res.status(200).json({
-          Product: Product[0],
-          images: images,
-        });
-      } else {
-        return res.status(404).json({ message: "Product Not Found" });
-      }
-    } else {
+    if (!ID_Product) {
       return res.status(406).json({ message: "Missing Arguments" });
+    }
+
+    const [Product] = await sequelize.query(
+      `SELECT * FROM Products WHERE ID_Product = :ID_Product AND Status = 'Visible'`,
+      { replacements: { ID_Product: ID_Product } }
+    );
+
+    const [images] = await sequelize.query(
+      `SELECT * FROM images WHERE ID_Product = :ID_Product`,
+      { replacements: { ID_Product: ID_Product } }
+    );
+
+    const [Reduction] = await sequelize.query(
+      `SELECT * FROM Reduction WHERE ID_Product = :ID_Product AND Status IN ('created', 'updated')`,
+      { replacements: { ID_Product: ID_Product } }
+    );
+
+    if (Product.length > 0 && images.length > 0) {
+      return res.status(200).json({
+        Product: Product[0],
+        images: images,
+        Reduction: Reduction,
+      });
+    } else {
+      return res.status(404).json({ message: "Product Not Found" });
     }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+module.exports = { selectProductByID };
+
 const updateProduct = async (req, res) => {
   try {
     const {

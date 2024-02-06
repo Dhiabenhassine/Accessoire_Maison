@@ -4,7 +4,7 @@ const Auth = require("./Controller/Authentication");
 const Product = require("./Controller/ProductsController");
 const Commentaire = require("./Controller/CommentaireController");
 const Panier = require("./Controller/PanierController");
-const sequelize = require("./DataBase");
+const Reduction = require("./Controller/ReductionController");
 module.exports = () => {
   router.post("/Authentication/register", async (req, res) => {
     try {
@@ -123,12 +123,26 @@ module.exports = () => {
     try {
       await Panier.deletePanier(req, res);
     } catch (err) {
+      res.status(400).json({
+        message:
+          "Le panier que vous essayez de supprimer ne peut être supprimé car il contient des produits.",
+      });
+    }
+  });
+  router.post("/Reduction/updateReduction", async (req, res) => {
+    try {
+      await Reduction.updateReduction(req, res);
+    } catch (err) {
       res
         .status(400)
-        .json({
-          message:
-            "Le panier que vous essayez de supprimer ne peut être supprimé car il contient des produits.",
-        });
+        .json({ message: "La réduction n'a pas pu être modifiée." });
+    }
+  });
+  router.post("/Reduction/deleteReduction", async (req, res) => {
+    try {
+      await Reduction.deleteReduction(req, res);
+    } catch (err) {
+      res.status(500).send("Une erreur est survenue");
     }
   });
   return router;
