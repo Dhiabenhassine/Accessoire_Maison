@@ -44,6 +44,13 @@ module.exports = () => {
       return res.status(400).json({ message: "Invalid ID." });
     }
   });
+  router.get("/Products/selectVedette", async (req, res) => {
+    try {
+      await Product.selectVedette(req, res);
+    } catch (err) {
+      return res.status(400).json({ message: "Invalid ID." });
+    }
+  });
   router.post("/Products/UpdateProducts", async (req, res) => {
     try {
       await Product.updateProduct(req, res);

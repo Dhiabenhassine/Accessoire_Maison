@@ -74,19 +74,20 @@ VALUES (:ID_Product,:Valeur)
 const selectProduct = async (req, res) => {
   try {
     const queryProduct = `
-      SELECT Products.NameProduct, 
+      SELECT Products.ID_Product,
+       Products.NameProduct, 
       Products.Price, 
       Products.Description, 
       Products.Stock_Qte,
       Images.URLimage
       FROM Products
-      JOIN Images ON Products.ID_Product  = Images.ID_Product
+      JOIN Images ON Products.ID_Product  = Images.ID_Product AND Cover = '1'
       `;
     const result = await sequelize.query(queryProduct, {
       type: sequelize.QueryTypes.SELECT,
     });
     var products = result;
-    s;
+    ;
     if (products.length > 0) {
       res.status(200).json({ products });
     } else {
@@ -135,7 +136,6 @@ const selectProductByID = async (req, res) => {
   }
 };
 
-module.exports = { selectProductByID };
 
 const updateProduct = async (req, res) => {
   try {
@@ -258,6 +258,28 @@ const deleteProduct = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+const selectVedette = async (req, res) => {
+  try {
+    // Retrieve featured and visible products
+    const [products] = await sequelize.query(
+      `SELECT * FROM Products WHERE Vedette = '1' AND Status = 'Visible' LIMIT 5`
+    );
+
+    // Collect all product IDs to use in the next query
+    const productIds = products.map(product => product.ID_Product);
+
+    // Retrieve cover images for the products
+    const [images] = await sequelize.query(
+      `SELECT * FROM images WHERE ID_Product IN (:productIds) AND Cover = '1'`,
+      { replacements: { productIds } }
+    );
+
+    res.status(200).json({ products, images });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
   insert,
@@ -265,4 +287,5 @@ module.exports = {
   selectProductByID,
   updateProduct,
   deleteProduct,
+  selectVedette
 };
